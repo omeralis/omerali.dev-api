@@ -4,6 +4,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const { candidates, technologies } = require('./project-candidates.cjs');
+const postgresInventory = require('./postgres-inventory.cjs');
 class SeedError extends Error {}
 const backupAuthorizations = new WeakSet();
 const PROJECT = 'api::project.project';
@@ -21,13 +22,15 @@ const schemaDigest = () => digest([PROJECT, TECHNOLOGY].map(uid => {
   const type = uid.split('::')[1].split('.')[0];
   return JSON.parse(fs.readFileSync(path.join(__dirname, `../src/api/${type}/content-types/${type}/schema.json`), 'utf8'));
 }));
-function targetFingerprint(strapi) {
-  const database = strapi.config.get('database.connection');
+function targetFingerprintDatabase(database) {
   if (database.client !== 'postgres') throw new SeedError('This production importer requires PostgreSQL.');
   const connection = database.connection;
   const url = connection.connectionString ? new URL(connection.connectionString) : null;
   return digest({ client: 'postgres', host: url?.hostname || connection.host, port: url?.port || connection.port || 5432, database: url?.pathname.slice(1) || connection.database, schema: connection.schema || 'public' });
 }
+const targetFingerprint = strapi => targetFingerprintDatabase(strapi.config.get('database.connection'));
+const sqlHelpers = () => ({ digest, schemaDigest, targetFingerprintDatabase, save });
+const capturePostgresInventory = (database, file, Client) => postgresInventory.capturePostgresInventory(database, file, sqlHelpers(), Client);
 async function readInventory(strapi) {
   const configured = (await strapi.plugin('i18n').service('locales').find()).map(locale => locale.code).sort();
   if (!locales.every(locale => configured.includes(locale))) throw new SeedError('Configure en and ar before planning.');
@@ -58,7 +61,9 @@ function localizedData(candidate, locale) {
 }
 function buildPlan(inventory) {
   const conflicts = [];
-  if (inventory.source !== 'document-service' || !inventory.target) conflicts.push('Production inventory is required; this is a proposal only.');
+  if (!['document-service', postgresInventory.SOURCE].includes(inventory.source) || !/^[a-f0-9]{64}$/.test(inventory.target || '')) conflicts.push('Production inventory is required; this is a proposal only.');
+  conflicts.push(...postgresInventory.sqlInventoryConflicts(inventory));
+  if (!Array.isArray(inventory.locales) || !locales.every(locale => inventory.locales.includes(locale))) conflicts.push('English and Arabic inventory locales are required.');
   if (inventory.schema !== schemaDigest()) conflicts.push('Inventory schema does not match this importer.');
   const catalog = technologies.map(technology => {
     const matches = inventory.technologies.filter(t => t.slug === technology.slug || t.name.toLowerCase() === technology.name.toLowerCase());
@@ -96,7 +101,7 @@ function validatePlan(plan, confirmation) {
   const { digest: hash, ...body } = plan;
   if (hash !== digest(body) || hash !== confirmation) throw new SeedError('Plan review digest is missing or does not match.');
   if (plan.conflicts.length) throw new SeedError(`Plan is blocked: ${plan.conflicts.join(' ')}`);
-  if (plan.inventory.source !== 'document-service') throw new SeedError('A database-aware inventory is required.');
+  if (!['document-service', postgresInventory.SOURCE].includes(plan.inventory.source)) throw new SeedError('A database-aware inventory is required.');
   if (digest(buildPlan(plan.inventory)) !== digest(plan)) throw new SeedError('Candidate content changed since review; regenerate the plan.');
 }
 async function verifyBackup(plan, file, evidenceFile) {
@@ -156,13 +161,27 @@ async function seed(strapi, plan, options) {
   let committed = false;
   try {
     await strapi.db.transaction(async ({ trx }) => {
-      // PostgreSQL transaction control only; all content access uses Document Service.
+      // Content mutations use Document Service; SQL inventory reads remain read-only.
       // Serialize cooperating seeders before taking the current inventory snapshot.
       await trx.raw('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
       await trx.raw("SET LOCAL lock_timeout = '15s'");
       const schema = strapi.config.get('database.connection.connection.schema') || 'public';
       await trx.raw('LOCK TABLE ??, ?? IN SHARE ROW EXCLUSIVE MODE', [schema + '.projects', schema + '.technologies']);
-      const current = await readInventory(strapi);
+      let current;
+      if (plan.inventory.source === postgresInventory.SOURCE) {
+        // Reproduce the SQL snapshot under the same locks and transaction used for writes.
+        const query = (sql, values = []) => {
+          const parameters = [];
+          const statement = sql.replace(/\$(\d+)/g, (_, index) => { parameters.push(values[Number(index) - 1]); return '?'; });
+          return trx.raw(statement, parameters);
+        };
+        current = await postgresInventory.readPostgresInventory(query, strapi.config.get('database.connection'), sqlHelpers());
+        const conflicts = postgresInventory.sqlInventoryConflicts(current);
+        if (conflicts.length) throw new SeedError(conflicts.join(' '));
+        // Empty-state SQL equivalence is independently verified through supported APIs.
+        const documents = await readInventory(strapi);
+        if (documents.target !== current.target || documents.schema !== current.schema || digest(documents.locales) !== digest(current.locales) || documents.records.length || documents.technologies.length) throw new SeedError('SQL inventory cannot be reproduced through Document Service. No content was written.');
+      } else current = await readInventory(strapi);
       if (digest(current) !== digest(plan.inventory)) throw new SeedError('Database changed since dry-run review. Regenerate the plan; no content was written.');
       const technologyIds = {};
       for (const item of plan.catalog) {
@@ -205,9 +224,19 @@ async function seed(strapi, plan, options) {
   }
 }
 async function main(args) {
+  if (args.includes('--capture-postgres') && (args.includes('--apply') || args.includes('--inventory'))) throw new SeedError('Inventory capture cannot be combined with application or inventory input.');
   if (args.includes('--apply') && args.includes('--dry-run')) throw new SeedError('Dry-run and apply modes cannot be combined.');
   const value = flag => args[args.indexOf(flag) + 1];
   const get = flag => args.includes(flag) ? value(flag) : undefined;
+  if (args.includes('--capture-postgres')) {
+    if (!get('--out')) throw new SeedError('Inventory output path is required.');
+    // Load only existing compiled configuration; never initialize Strapi.
+    require('dotenv').config({ quiet: true });
+    const configuration = require('../dist/config/database.js').default({ env: require('@strapi/utils').env });
+    const inventory = await capturePostgresInventory(configuration.connection, get('--out'));
+    console.log(JSON.stringify({ source: inventory.source, target: inventory.target, counts: inventory.sql.counts, locales: inventory.locales, limitations: inventory.sql.limitations }));
+    return;
+  }
   if (!args.includes('--apply')) {
     const inventory = get('--inventory') ? JSON.parse(fs.readFileSync(get('--inventory'), 'utf8')) : { source: 'proposal-only', target: null, schema: schemaDigest(), locales, records: [], technologies: [] };
     const plan = buildPlan(inventory);
@@ -227,4 +256,4 @@ async function main(args) {
   finally { await app.destroy(); }
 }
 if (require.main === module) main(process.argv.slice(2)).catch(error => { console.error(JSON.stringify({ status: 'failed', message: error instanceof SeedError ? error.message : 'Import refused or failed. Review backup evidence and record-level failures. No automatic retry is performed.' })); process.exitCode = 1; });
-module.exports = { candidates, technologies, localizedData, buildPlan, readInventory, captureInventory, validatePlan, verifyBackup, verifyApi, seed, digest, schemaDigest, main };
+module.exports = { candidates, technologies, localizedData, buildPlan, readInventory, captureInventory, capturePostgresInventory, validatePlan, verifyBackup, verifyApi, seed, digest, schemaDigest, targetFingerprintDatabase, main };
