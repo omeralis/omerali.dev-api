@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_project_seos",
+  "info": {
+    "displayName": "Project SEO"
+  },
+  "attributes": {
+    "metaTitle": {
+      "type": "string"
+    },
+    "metaDescription": {
+      "type": "text"
+    },
+    "ogImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}
