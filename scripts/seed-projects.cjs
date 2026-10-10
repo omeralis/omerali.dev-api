@@ -6,6 +6,27 @@ const { spawnSync } = require('node:child_process');
 const { candidates, technologies } = require('./project-candidates.cjs');
 const postgresInventory = require('./postgres-inventory.cjs');
 class SeedError extends Error {}
+function errorDiagnostic(error) {
+  const names = new Set(['Error', 'TypeError', 'RangeError', 'ValidationError', 'ApplicationError', 'DatabaseError', 'NotFoundError', 'ForbiddenError', 'UnauthorizedError', 'TimeoutError', 'AbortError']);
+  const diagnostic = { name: error instanceof SeedError ? 'SeedError' : names.has(error?.name) ? error.name : 'Error' };
+  const code = error?.code || error?.cause?.code || error?.original?.code;
+  if (typeof code === 'string' && /^(?:[0-9]{2}|F0|HV|P0|XX)[0-9A-Z]{3}$/.test(code)) diagnostic.postgresCode = code;
+  const fields = new Set(['id', 'documentId', 'locale', 'slug', 'title', 'name', 'shortDescription', 'description', 'businessProblem', 'solution', 'myRole', 'projectYear', 'status', 'featured', 'displayOrder', 'projectType', 'demoUrl', 'repositoryUrl', 'clientName', 'technologies', 'features', 'responsibilities', 'coverImage', 'gallery', 'seo', 'metaTitle', 'metaDescription', 'ogImage']);
+  const rules = new Map([['This attribute must be unique', 'unique'], ['slug must be defined.', 'required']]);
+  const errors = Array.isArray(error?.details?.errors) ? error.details.errors.slice(0, 20) : [];
+  diagnostic.validation = errors.flatMap(item => {
+    const path = Array.isArray(item?.path) ? item.path : [];
+    if (!path.length || !path.every(part => fields.has(part) || /^(0|[1-9]\d{0,4})$/.test(String(part)))) return [];
+    return [{ path, ...(rules.has(item.message) ? { rule: rules.get(item.message) } : {}) }];
+  });
+  if (!diagnostic.validation.length) delete diagnostic.validation;
+  // No raw messages, stacks, SQL, bindings, detail values, records or URLs.
+  return diagnostic;
+}
+async function atStage(stage, operation) {
+  try { return await operation(); }
+  catch (error) { if (error instanceof Error) error.seedStage = stage; throw error; }
+}
 const backupAuthorizations = new WeakSet();
 const PROJECT = 'api::project.project';
 const TECHNOLOGY = 'api::technology.technology';
@@ -136,7 +157,7 @@ async function verifyApi(plan, ids, base, token, fetcher = fetch) {
   const verified = [];
   for (const locale of locales) for (const project of plan.projects) {
     const endpoint = new URL('/api/projects', url);
-    endpoint.search = new URLSearchParams({ locale, 'filters[slug][$eq]': project.slug }).toString();
+    endpoint.search = new URLSearchParams({ locale, 'filters[slug][$eq]': project.slug, populate: 'technologies' }).toString();
     let success = false;
     for (let attempt = 0; attempt < 3; attempt++) {
       const response = await fetcher(endpoint, { headers: token ? { Authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(10000), redirect: 'error' });
@@ -153,19 +174,25 @@ async function verifyApi(plan, ids, base, token, fetcher = fetch) {
   return verified;
 }
 async function seed(strapi, plan, options) {
-  validatePlan(plan, options.confirmPlan);
-  if (options.publish !== true) throw new SeedError('Explicit publication confirmation is required.');
-  if ((process.env.NODE_ENV === 'production' || strapi.config.get('environment') === 'production') && (!options.confirmProduction || !backupAuthorizations.has(options.authorization) || options.authorization.target !== plan.inventory.target)) throw new SeedError('Verified backup authorization and production confirmation are required.');
-  await ensureApiReadable(options.apiUrl, options.apiToken, options.fetcher);
   const events = [], ids = {};
-  let committed = false;
+  let committed = false, stage = 'plan-validation', activeRecord;
   try {
+    validatePlan(plan, options.confirmPlan);
+    stage = 'publication-authorization';
+    if (options.publish !== true) throw new SeedError('Explicit publication confirmation is required.');
+    stage = 'backup-authorization';
+    if ((process.env.NODE_ENV === 'production' || strapi.config.get('environment') === 'production') && (!options.confirmProduction || !backupAuthorizations.has(options.authorization) || options.authorization.target !== plan.inventory.target)) throw new SeedError('Verified backup authorization and production confirmation are required.');
+    stage = 'api-preflight';
+    await ensureApiReadable(options.apiUrl, options.apiToken, options.fetcher);
+    stage = 'transaction-begin';
     await strapi.db.transaction(async ({ trx }) => {
       // Content mutations use Document Service; SQL inventory reads remain read-only.
       // Serialize cooperating seeders before taking the current inventory snapshot.
+      stage = 'transaction-isolation';
       await trx.raw('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
       await trx.raw("SET LOCAL lock_timeout = '15s'");
       const schema = strapi.config.get('database.connection.connection.schema') || 'public';
+      stage = 'database-locking';
       await trx.raw('LOCK TABLE ??, ?? IN SHARE ROW EXCLUSIVE MODE', [schema + '.projects', schema + '.technologies']);
       let current;
       if (plan.inventory.source === postgresInventory.SOURCE) {
@@ -175,16 +202,21 @@ async function seed(strapi, plan, options) {
           const statement = sql.replace(/\$(\d+)/g, (_, index) => { parameters.push(values[Number(index) - 1]); return '?'; });
           return trx.raw(statement, parameters);
         };
+        stage = 'sql-inventory-revalidation';
         current = await postgresInventory.readPostgresInventory(query, strapi.config.get('database.connection'), sqlHelpers());
         const conflicts = postgresInventory.sqlInventoryConflicts(current);
         if (conflicts.length) throw new SeedError(conflicts.join(' '));
         // Empty-state SQL equivalence is independently verified through supported APIs.
+        stage = 'document-inventory-revalidation';
         const documents = await readInventory(strapi);
         if (documents.target !== current.target || documents.schema !== current.schema || digest(documents.locales) !== digest(current.locales) || documents.records.length || documents.technologies.length) throw new SeedError('SQL inventory cannot be reproduced through Document Service. No content was written.');
-      } else current = await readInventory(strapi);
+      } else { stage = 'document-inventory-revalidation'; current = await readInventory(strapi); }
+      stage = 'inventory-comparison';
       if (digest(current) !== digest(plan.inventory)) throw new SeedError('Database changed since dry-run review. Regenerate the plan; no content was written.');
       const technologyIds = {};
       for (const item of plan.catalog) {
+        stage = item.documentId ? 'technology-reuse' : 'technology-creation';
+        activeRecord = `technology:${item.slug}`;
         const record = item.documentId ? { documentId: item.documentId } : await strapi.documents(TECHNOLOGY).create({ data: { name: item.name, slug: item.slug, category: item.category, displayOrder: item.displayOrder } });
         technologyIds[item.slug] = record.documentId;
         events.push({ status: item.documentId ? 'skipped' : 'created', record: `technology:${item.slug}`, documentId: record.documentId });
@@ -195,9 +227,16 @@ async function seed(strapi, plan, options) {
         for (const version of project.versions) {
           if (version.action === 'skip-existing') { events.push({ status: 'skipped', record: `${project.slug}/${version.locale}`, documentId }); continue; }
           const data = localizedData(candidate, version.locale);
+          // Strapi 5.35 treats UID attributes AND relations as localized even
+          // when pluginOptions.i18n.localized is false. Supply both explicitly
+          // only for a missing locale; never update an existing locale.
+          data.slug = project.slug;
+          data.technologies = project.technologies.map(slug => technologyIds[slug]);
+          stage = documentId ? 'project-localization-creation' : 'project-creation';
+          activeRecord = `${project.slug}/${version.locale}`;
           const record = documentId
             ? await strapi.documents(PROJECT).update({ documentId, locale: version.locale, status: 'draft', data })
-            : await strapi.documents(PROJECT).create({ locale: version.locale, status: 'draft', data: { ...data, slug: project.slug, projectType: project.projectType, featured: true, displayOrder: project.displayOrder, technologies: project.technologies.map(slug => technologyIds[slug]) } });
+            : await strapi.documents(PROJECT).create({ locale: version.locale, status: 'draft', data: { ...data, projectType: project.projectType, featured: true, displayOrder: project.displayOrder } });
           if (documentId && record.documentId !== documentId) throw new SeedError('Localization document identifier mismatch.');
           documentId = record.documentId;
           events.push({ status: 'created', record: `${project.slug}/${version.locale}`, documentId });
@@ -207,19 +246,25 @@ async function seed(strapi, plan, options) {
       // All six drafts exist before the first publication. Never republish an existing published version.
       for (const project of plan.projects) for (const version of project.versions) {
         if (version.publish === 'skip-published') { events.push({ status: 'skipped', record: `published:${project.slug}/${version.locale}`, documentId: ids[project.slug] }); continue; }
+        stage = 'publication';
+        activeRecord = `${project.slug}/${version.locale}`;
         await strapi.documents(PROJECT).publish({ documentId: ids[project.slug], locale: version.locale });
+        stage = 'publication-verification';
         const record = await strapi.documents(PROJECT).findOne({ documentId: ids[project.slug], locale: version.locale, status: 'published', populate });
-        if (!record || !record.publishedAt || record.featured !== true || record.displayOrder !== project.displayOrder) throw new SeedError(`Publication verification failed: ${project.slug}/${version.locale}`);
+        if (!record || !record.publishedAt || record.slug !== project.slug || record.locale !== version.locale || record.documentId !== ids[project.slug] || record.featured !== true || record.displayOrder !== project.displayOrder || project.technologies.some(slug => !record.technologies?.some(t => t.documentId === technologyIds[slug]))) throw new SeedError(`Publication verification failed: ${project.slug}/${version.locale}`);
         events.push({ status: 'published', record: `${project.slug}/${version.locale}`, documentId: record.documentId });
       }
+      stage = 'transaction-commit';
+      activeRecord = undefined;
     });
     committed = true;
     events.forEach(event => console.log(JSON.stringify(event)));
+    stage = 'api-verification';
     const verified = await verifyApi(plan, ids, options.apiUrl, options.apiToken, options.fetcher);
     console.log(JSON.stringify({ status: 'verified', records: verified }));
     return { events, ids, verified };
   } catch (error) {
-    console.error(JSON.stringify({ status: 'failed', committed, records: plan.projects.map(p => p.slug), message: error instanceof SeedError ? error.message : 'Document Service or API operation failed; inspect the operator logs without exposing credentials.', recovery: committed ? 'Content is committed. Review a fresh dry-run and retry; existing records will be skipped.' : 'Content transaction rolled back. Regenerate the plan before retrying.' }));
+    console.error(JSON.stringify({ status: 'failed', committed, stage, record: activeRecord, diagnostic: errorDiagnostic(error), records: candidates.map(p => p.slug), message: error instanceof SeedError ? error.message : 'Operation failed; inspect the sanitized stage and diagnostic.', recovery: committed ? 'Content is committed. Inspect and review a fresh inventory; never automatically retry writes.' : stage === 'transaction-commit' ? 'Commit outcome may be uncertain. Inspect current database state before any retry.' : 'No content committed; transaction rolled back if started. Regenerate the plan before retrying.' }));
     throw error;
   }
 }
@@ -233,7 +278,7 @@ async function main(args) {
     // Load only existing compiled configuration; never initialize Strapi.
     require('dotenv').config({ quiet: true });
     const configuration = require('../dist/config/database.js').default({ env: require('@strapi/utils').env });
-    const inventory = await capturePostgresInventory(configuration.connection, get('--out'));
+    const inventory = await atStage('sql-inventory-capture', () => capturePostgresInventory(configuration.connection, get('--out')));
     console.log(JSON.stringify({ source: inventory.source, target: inventory.target, counts: inventory.sql.counts, locales: inventory.locales, limitations: inventory.sql.limitations }));
     return;
   }
@@ -247,13 +292,13 @@ async function main(args) {
   const plan = JSON.parse(fs.readFileSync(get('--plan'), 'utf8'));
   validatePlan(plan, get('--confirm-plan'));
   if (!args.includes('--publish') || !args.includes('--confirm-production') || !args.includes('--confirm-backup-verified') || process.env.NODE_ENV !== 'production') throw new SeedError('Explicit production, publication and verified-backup confirmations are required.');
-  const authorization = await verifyBackup(plan, get('--backup'), get('--backup-evidence'));
+  const authorization = await atStage('backup-verification', () => verifyBackup(plan, get('--backup'), get('--backup-evidence')));
   if (!get('--api-url')) throw new SeedError('API verification URL is required.');
-  await ensureApiReadable(get('--api-url'), process.env.STRAPI_READ_TOKEN);
+  await atStage('api-preflight', () => ensureApiReadable(get('--api-url'), process.env.STRAPI_READ_TOKEN));
   const { createStrapi, compileStrapi } = require('@strapi/strapi');
   const app = createStrapi(await compileStrapi());
-  try { await app.load(); await seed(app, plan, { confirmPlan: plan.digest, publish: true, confirmProduction: true, authorization, apiUrl: get('--api-url'), apiToken: process.env.STRAPI_READ_TOKEN }); }
+  try { await atStage('strapi-initialization', () => app.load()); await seed(app, plan, { confirmPlan: plan.digest, publish: true, confirmProduction: true, authorization, apiUrl: get('--api-url'), apiToken: process.env.STRAPI_READ_TOKEN }); }
   finally { await app.destroy(); }
 }
-if (require.main === module) main(process.argv.slice(2)).catch(error => { console.error(JSON.stringify({ status: 'failed', message: error instanceof SeedError ? error.message : 'Import refused or failed. Review backup evidence and record-level failures. No automatic retry is performed.' })); process.exitCode = 1; });
-module.exports = { candidates, technologies, localizedData, buildPlan, readInventory, captureInventory, capturePostgresInventory, validatePlan, verifyBackup, verifyApi, seed, digest, schemaDigest, targetFingerprintDatabase, main };
+if (require.main === module) main(process.argv.slice(2)).catch(error => { console.error(JSON.stringify({ status: 'failed', stage: error.seedStage || 'cli-or-import', diagnostic: errorDiagnostic(error), message: error instanceof SeedError ? error.message : 'Import refused or failed. Review backup evidence and record-level failures. No automatic retry is performed.' })); process.exitCode = 1; });
+module.exports = { candidates, technologies, localizedData, buildPlan, readInventory, captureInventory, capturePostgresInventory, validatePlan, verifyBackup, verifyApi, seed, digest, schemaDigest, targetFingerprintDatabase, errorDiagnostic, main };
