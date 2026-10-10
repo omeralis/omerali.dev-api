@@ -12,11 +12,11 @@ function mock() {
   findMany: async ({filters,locale,status}) => structuredClone(state.records.filter(r=>r.slug===filters.slug&&r.locale===locale&&(!!r.publishedAt)===(status==='published'))),
   findOne: async ({documentId,locale,status}) => structuredClone(state.records.find(r=>r.documentId===documentId&&r.locale===locale&&(!!r.publishedAt)===(status==='published'))),
   create: async ({data,locale}) => { const record={...data,locale,documentId:`doc-${data.slug}`,publishedAt:null,technologies:(data.technologies||[]).map(id=>state.technologies.find(t=>t.documentId===id))};state.records.push(record);state.mutations.push(`create:${locale}`);return structuredClone(record); },
-  update: async ({documentId,locale,data}) => { assert.ok(!state.records.some(r=>r.documentId===documentId&&r.locale===locale));for(const field of ['slug','featured','displayOrder','technologies'])assert.equal(data[field],undefined);const shared=state.records.find(r=>r.documentId===documentId);const record={...shared,...data,locale,publishedAt:null};state.records.push(record);state.mutations.push(`locale:${locale}`);return structuredClone(record); },
+  update: async ({documentId,locale,data}) => { assert.ok(!state.records.some(r=>r.documentId===documentId&&r.locale===locale));for(const field of ['featured','displayOrder','projectType'])assert.equal(data[field],undefined);const shared=state.records.find(r=>r.documentId===documentId);assert.equal(data.slug,shared.slug);const record={...shared,...data,locale,publishedAt:null,technologies:(data.technologies||[]).map(id=>state.technologies.find(t=>t.documentId===id))};state.records.push(record);state.mutations.push(`locale:${locale}`);return structuredClone(record); },
   publish: async ({documentId,locale}) => { if(state.failPublish&&locale==='ar')throw new Error('simulated failure');assert.ok(!state.records.some(r=>r.documentId===documentId&&r.locale===locale&&r.publishedAt));state.records.push({...state.records.find(r=>r.documentId===documentId&&r.locale===locale&&!r.publishedAt),publishedAt:'2026-01-01'});state.mutations.push(`publish:${locale}`);return {}; },
  };
  const app={config:{get:key=>key==='database.connection'?config:'public'},plugin:()=>({service:()=>({find:async()=>[{code:'en'},{code:'ar'}]})}),documents,db:{transaction:async fn=>{const previous=structuredClone(state);try{return await fn({trx:{raw:async()=>{}}});}catch(error){Object.assign(state,previous);throw error;}}}};
- const fetcher=async url=>({ok:true,json:async()=>({data:state.records.filter(r=>r.slug===url.searchParams.get('filters[slug][$eq]')&&r.locale===url.searchParams.get('locale')&&r.publishedAt)})});
+ const fetcher=async url=>({ok:true,json:async()=>({data:state.records.filter(r=>r.slug===url.searchParams.get('filters[slug][$eq]')&&r.locale===url.searchParams.get('locale')&&r.publishedAt).map(record=>{const result=structuredClone(record);if(url.searchParams.get('populate')!=='technologies')delete result.technologies;return result;})})});
  return {app,state,fetcher};
 }
 const options=(plan,fetcher)=>({confirmPlan:plan.digest,publish:true,apiUrl:'https://test.invalid',fetcher});
@@ -38,4 +38,16 @@ test('SQL plan is revalidated through SQL and Document Service before writes',as
   if(mode==='documents-changed')state.records.push({slug:'grc-platform',locale:'en',documentId:'unexpected',publishedAt:null});
   if(mode==='ok'){await seed(app,plan,options(plan,fetcher));assert.equal(state.records.length,12);}else{await assert.rejects(seed(app,plan,options(plan,fetcher)));assert.equal(state.mutations.length,0);}
  }
+});
+test('Strapi UID and relations must be supplied when creating a missing localization',async()=>{
+ const {app,state,fetcher}=mock();const service=app.documents;app.documents=uid=>{const api=service(uid);if(!uid.includes('project'))return api;const update=api.update;return {...api,update:async params=>{assert.equal(params.data.slug,state.records.find(r=>r.documentId===params.documentId).slug);assert.ok(Array.isArray(params.data.technologies));return update(params);}};};
+ const plan=buildPlan(await readInventory(app));await seed(app,plan,options(plan,fetcher));for(const locale of ['en','ar']){const rows=state.records.filter(r=>r.slug==='grc-platform'&&r.locale===locale);assert.equal(rows.length,2);assert.ok(rows.every(r=>r.technologies.length===1&&r.technologies[0].slug==='angular'));}assert.equal(state.records.filter(r=>r.publishedAt).length,6);
+});
+test('publication failures report their stage and safe validation paths without sensitive details',async()=>{
+ const {app,state,fetcher}=mock();const service=app.documents;app.documents=uid=>{const api=service(uid);if(!uid.includes('project'))return api;return {...api,publish:async()=>{const error=new Error('password=DO_NOT_LOG postgres://private/token');error.name='ValidationError';error.details={errors:[{path:['slug'],message:'slug must be defined.',value:'PRIVATE_RECORD'},{path:['PRIVATE_TOKEN'],message:'PRIVATE_MESSAGE',value:'PRIVATE_VALUE'}]};throw error;}};};
+ const output=[];const original=console.error;console.error=value=>output.push(value);try{const plan=buildPlan(await readInventory(app));await assert.rejects(seed(app,plan,options(plan,fetcher)));}finally{console.error=original;}
+ const event=JSON.parse(output[0]);assert.equal(event.stage,'publication');assert.equal(event.record,'grc-platform/en');assert.equal(event.committed,false);assert.deepEqual(event.diagnostic,{name:'ValidationError',validation:[{path:['slug'],rule:'required'}]});assert.ok(!output.join('').includes('PRIVATE'));assert.ok(!output.join('').includes('DO_NOT_LOG'));assert.equal(state.records.length,0);assert.equal(state.technologies.length,0);
+});
+test('PostgreSQL diagnostics retain only safe codes and names',()=>{
+ const {errorDiagnostic}=require('../scripts/seed-projects.cjs');assert.deepEqual(errorDiagnostic({name:'error',code:'23505',message:'SQL WITH PASSWORD',detail:'PRIVATE',query:'PRIVATE',parameters:['PRIVATE']}),{name:'Error',postgresCode:'23505'});assert.deepEqual(errorDiagnostic({name:'PRIVATE_TOKEN',code:'TOKEN'}),{name:'Error'});
 });

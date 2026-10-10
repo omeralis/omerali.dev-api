@@ -43,7 +43,7 @@ Source changes must first be reviewed on `phase-4-readonly-inventory`. A later a
 node scripts/seed-projects.cjs --dry-run --inventory seed-review/inventory.json --out seed-review/plan.json
 ```
 
-Review the ENTIRE plan, including existing drafts proposed for first publication, then preserve its digest. seed-review is ignored by Git; new files use mode 0600. Do not share editorial inventory publicly. Ambiguous technologies, duplicate documents, and existing shared fields/technology associations incompatible with the requested result block ALL writes. Existing translations are never rewritten. Missing locales receive only localized fields and inherit shared fields through Document Service. Existing published versions are never republished, even when their draft has changed.
+Review the ENTIRE plan, including existing drafts proposed for first publication, then preserve its digest. seed-review is ignored by Git; new files use mode 0600. Do not share editorial inventory publicly. Ambiguous technologies, duplicate documents, and existing shared fields/technology associations incompatible with the requested result block ALL writes. Existing translations are never rewritten. Missing locales receive localized content, the stable slug and confirmed technology document identifiers explicitly; other shared fields inherit through Document Service. Strapi 5.35.0 treats UID attributes and relations as localized regardless of a false localized option, so they cannot be assumed to copy. Existing published versions are never republished, even when their draft has changed.
 
 ## Backup verification
 
@@ -90,7 +90,7 @@ The content transaction takes serializable PostgreSQL locks on projects/technolo
 
 ## Verification and recovery
 
-After commit, the importer verifies /api/projects?locale=en and /api/projects?locale=ar with slug filters and populated technologies: documentId, locale, publication, featured flag, order and confirmed technology associations must match. Redirects are refused and tokens are never logged. Created/skipped/published events are printed after commit; failures state whether content committed.
+After commit, the importer verifies /api/projects?locale=en and /api/projects?locale=ar with slug filters and an explicit populate=technologies parameter: documentId, locale, publication, featured flag, order and confirmed technology associations must match. The same identity, slug and relation checks also run inside the transaction before commit. Redirects are refused and tokens are never logged. Created/skipped/published events are printed after commit; failures identify their stage and approved record label, whether content committed, and an allowlisted error name, PostgreSQL SQLSTATE code or validation field path. Raw messages, SQL, bindings, stacks, validation values and full records are never emitted. A failure at transaction commit reports that its outcome may be uncertain and requires inspection rather than automatic retries.
 
 An API failure after commit produces a nonzero exit. Never delete/recreate records: export fresh inventory, review a new plan, and retry. Matching existing versions are skipped. Stale/tampered plans, conflicts and absent backup evidence fail closed. The main script never retries writes automatically.
 
