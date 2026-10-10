@@ -1,6 +1,6 @@
 # Reviewed production project import
 
-This supersedes the draft-only seeding policy in PHASE4.md. Schemas, frontend, database configuration and deployment pipelines are unchanged. All content access uses Strapi 5 Document Service; SQL is limited to PostgreSQL transaction/read-only/locking controls, never content inserts, updates or deletes.
+This supersedes the draft-only seeding policy in PHASE4.md. Schemas, frontend, database configuration and deployment pipelines are unchanged. All content mutations use Strapi 5 Document Service. SQL is limited to inventory SELECTs and PostgreSQL transaction/read-only/locking controls, never content inserts, updates or deletes.
 
 ## Content and proposal
 
@@ -20,7 +20,24 @@ Schemas must already be deployed and en/ar configured. Export inventory from an 
 await require('./scripts/seed-projects.cjs').captureInventory(strapi, 'seed-review/inventory.json');
 ```
 
-This function uses Document Service reads in a read-only, repeatable-read PostgreSQL transaction. It checks all configured languages, draft/published versions, matching technologies and a database target fingerprint, writing only an inventory file. Do not start `strapi console` or call app.load() as part of a claimed zero-write dry-run: normal Strapi startup can synchronize schemas and write metadata. If an initialized runtime is unavailable, obtain inventory through authorized maintenance tooling first; no production-aware plan can honestly be produced without it.
+This function uses Document Service reads in a read-only, repeatable-read PostgreSQL transaction. It checks all configured languages, draft/published versions, matching technologies and a database target fingerprint, writing only an inventory file. Do not start `strapi console` or call app.load() as part of a claimed zero-write dry-run: normal Strapi startup can synchronize schemas and write metadata.
+
+### Read-only PostgreSQL alternative for an empty portfolio
+
+When no initialized operator runtime is available, the existing importer also supports:
+
+```sh
+NODE_ENV=production node scripts/seed-projects.cjs --capture-postgres --out seed-review/inventory.json
+node scripts/seed-projects.cjs --dry-run --inventory seed-review/inventory.json --out seed-review/plan.json
+```
+
+Capture loads only the existing compiled `dist/config/database.js` with Strapi's environment helper and the existing environment; it does not initialize Strapi. It opens a separate PostgreSQL connection, starts `REPEATABLE READ, READ ONLY`, reads actual catalog column types and foreign keys, verifies the connected database, reads all project/technology rows, both locales and technology/component links, then rolls back and closes. No DDL or data writes occur. No credentials are printed. Output is explicitly labeled `postgres-read-only`, with the configuration target fingerprint, source schema digest, deployed structure digest, raw snapshot digest and table counts.
+
+This alternative has deliberately narrow equivalence: only empty projects, technologies, technology links and component links can authorize an import. SQL summaries of existing draft/published/localized records and technology relations are retained for conflict diagnosis, but cannot authorize publication or edits. Any existing content, orphan relationships, unknown mapping or missing locale blocks the plan and requires a complete Document Service capture. SQL summaries do not reconstruct components, media or Document Service middleware. Never relabel them as Document Service output.
+
+For SQL plans, approved application reproduces the complete SQL snapshot inside the same serializable transaction and locks used for writes, compares every inventory field and digest, then independently confirms the empty candidate state, locales, schema and target through Document Service before the first mutation. Drift in content, relationships, columns, constraints, target or locale configuration aborts. After content exists, use the original initialized-runtime inventory method for idempotent reruns.
+
+Source changes must first be reviewed on `phase-4-readonly-inventory`. A later approved deployment must place both updated script files on the server together; the existing deployment workflow builds the compiled configuration. Do not merge, trigger that workflow, or restart for preparation. An explicitly authorized one-off inventory operator invocation can run the reviewed JavaScript in memory over SSH using the existing configuration and schemas, writing only ignored inventory/plan artifacts; this is not an application deployment. Before subsequent approved application, deploy the revised importer through the normal reviewed process.
 
 ```sh
 node scripts/seed-projects.cjs --dry-run --inventory seed-review/inventory.json --out seed-review/plan.json
@@ -77,9 +94,9 @@ After commit, the importer verifies /api/projects?locale=en and /api/projects?lo
 
 An API failure after commit produces a nonzero exit. Never delete/recreate records: export fresh inventory, review a new plan, and retry. Matching existing versions are skipped. Stale/tampered plans, conflicts and absent backup evidence fail closed. The main script never retries writes automatically.
 
-Tests: node --test tests/projects.test.cjs. In-memory tests cover proposal gating, bilingual creation/publication, idempotence, preserving an existing translation, conflicts/duplicates, stale/tampered plans, rollback and post-commit verification failure. Production locks/rollback, actual backup evidence and live API visibility remain unverified. No production writes were performed.
+Tests: npm run test:projects. In-memory tests cover proposal gating, bilingual creation/publication, idempotence, preserving an existing translation, conflicts/duplicates, stale/tampered plans, rollback, post-commit verification failure, read-only SQL transactions, inspected mappings, localizations, relations, database fingerprints and SQL/Document Service revalidation before writes. Tests do not claim production publication or rollback was executed.
 
-The current test suite has eight passing cases, including production backup-authorization refusal and API permission preflight refusal. API readability is checked before CLI application initialization and again before the content transaction. Live production verification is pending approval.
+API readability is checked before CLI application initialization and again before the content transaction. Live publication verification is pending subsequent explicit approval.
 
 To avoid additional Strapi startup entirely, the approved application can also run in the same already initialized operator runtime used for inventory export:
 

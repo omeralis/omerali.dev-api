@@ -14,7 +14,7 @@
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
-    "test:projects": "node --test tests/projects.test.cjs",
+    "test:projects": "node --test tests/projects.test.cjs tests/postgres-inventory.test.cjs",
     "seed:projects": "node scripts/seed-projects.cjs"
   },
   "dependencies": {

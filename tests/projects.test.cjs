@@ -28,3 +28,14 @@ test('conflicting shared fields, duplicate slugs and stale/tampered plans abort 
 test('publication failure rolls back all content; post-commit API failure is reported without duplication',async()=>{const {app,state,fetcher}=mock();let plan=buildPlan(await readInventory(app));state.failPublish=true;await assert.rejects(seed(app,plan,options(plan,fetcher)));assert.equal(state.records.length,0);assert.equal(state.technologies.length,0);state.failPublish=false;plan=buildPlan(await readInventory(app));let apiCalls=0;await assert.rejects(seed(app,plan,options(plan,async()=>({ok:++apiCalls<=2,json:async()=>({data:[]})}))));assert.equal(state.records.length,12);const count=state.mutations.length;plan=buildPlan(await readInventory(app));await seed(app,plan,options(plan,fetcher));assert.equal(state.mutations.length,count);});
 test('production calls refuse an unverified backup authorization before any mutations',async()=>{const {app,state,fetcher}=mock();const original=app.config.get;app.config.get=key=>key==='environment'?'production':original(key);const plan=buildPlan(await readInventory(app));await assert.rejects(seed(app,plan,options(plan,fetcher)));assert.equal(state.mutations.length,0);});
 test('API permission preflight prevents writes',async()=>{const {app,state}=mock();const plan=buildPlan(await readInventory(app));await assert.rejects(seed(app,plan,options(plan,async()=>({ok:false}))));assert.equal(state.mutations.length,0);});
+test('SQL plan is revalidated through SQL and Document Service before writes',async()=>{
+ const importer=require('../scripts/seed-projects.cjs');const pg=require('../scripts/postgres-inventory.cjs');const {fixture,database}=require('./postgres-fixture.cjs');
+ for(const mode of ['ok','sql-changed','documents-changed']){
+  const f=fixture();const {app,state,fetcher}=mock();
+  const inventory=await pg.readPostgresInventory(f.query,database,{digest:importer.digest,schemaDigest:importer.schemaDigest,targetFingerprintDatabase:importer.targetFingerprintDatabase});const plan=buildPlan(inventory);
+  app.db.transaction=async fn=>fn({trx:{raw:async(sql,values)=>{f.state.isolation='serializable';return f.query(sql,values);}}});
+  if(mode==='sql-changed')f.state.links.push({id:1,project_id:99,technology_id:99});
+  if(mode==='documents-changed')state.records.push({slug:'grc-platform',locale:'en',documentId:'unexpected',publishedAt:null});
+  if(mode==='ok'){await seed(app,plan,options(plan,fetcher));assert.equal(state.records.length,12);}else{await assert.rejects(seed(app,plan,options(plan,fetcher)));assert.equal(state.mutations.length,0);}
+ }
+});
