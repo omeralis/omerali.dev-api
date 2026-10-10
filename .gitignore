@@ -130,3 +130,6 @@ build
 .strapi-updater.json
 .strapi-cloud.json
 data.db
+
+# Operator-only seed inventory, approval plans and backup evidence
+seed-review/
