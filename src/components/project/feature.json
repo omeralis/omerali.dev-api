@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_project_features",
+  "info": {
+    "displayName": "Project Feature"
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "displayOrder": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

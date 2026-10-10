@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_project_responsibilities",
+  "info": {
+    "displayName": "Project Responsibility"
+  },
+  "attributes": {
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "displayOrder": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

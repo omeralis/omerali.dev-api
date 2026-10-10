@@ -13,7 +13,9 @@
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "upgrade:dry": "npx @strapi/upgrade latest --dry",
+    "test:projects": "node --test tests/projects.test.cjs",
+    "seed:projects": "node scripts/seed-projects.cjs"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.35.0",
@@ -22,6 +24,7 @@
     "better-sqlite3": "12.4.1",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",
+    "pg": "^8.23.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
