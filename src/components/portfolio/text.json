@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_portfolio_text",
+  "info": {
+    "displayName": "text"
+  },
+  "attributes": {
+    "value": {
+      "type": "text",
+      "required": true
+    }
+  }
+}

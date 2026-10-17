@@ -1,5 +1,280 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface PortfolioActions extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_actions';
+  info: {
+    displayName: 'actions';
+  };
+  attributes: {
+    contact: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    projects: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    resume: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    unavailable: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+  };
+}
+
+export interface PortfolioArchitecture extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_architecture';
+  info: {
+    displayName: 'architecture';
+  };
+  attributes: {
+    caption: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    layers: Schema.Attribute.Component<'portfolio.layer', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+  };
+}
+
+export interface PortfolioContact extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_contact';
+  info: {
+    displayName: 'contact';
+  };
+  attributes: {
+    action: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    caption: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    email: Schema.Attribute.Email;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    identifier: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    introduction: Schema.Attribute.Text & Schema.Attribute.Required;
+    location: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+  };
+}
+
+export interface PortfolioDetail extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_detail';
+  info: {
+    displayName: 'detail';
+  };
+  attributes: {
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    value: Schema.Attribute.Text & Schema.Attribute.Required;
+  };
+}
+
+export interface PortfolioHero extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_hero';
+  info: {
+    displayName: 'hero';
+  };
+  attributes: {
+    actions: Schema.Attribute.Component<'portfolio.actions', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    architecture: Schema.Attribute.Component<'portfolio.architecture', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    headline: Schema.Attribute.Component<'portfolio.text', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    identity: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    introduction: Schema.Attribute.Text & Schema.Attribute.Required;
+    metrics: Schema.Attribute.Component<'portfolio.metrics', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+  };
+}
+
+export interface PortfolioLayer extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_layer';
+  info: {
+    displayName: 'layer';
+  };
+  attributes: {
+    detail: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+  };
+}
+
+export interface PortfolioMetrics extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_metrics';
+  info: {
+    displayName: 'metrics';
+  };
+  attributes: {
+    based: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    experience: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    location: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    since: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    start: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+  };
+}
+
+export interface PortfolioSkill extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_skill';
+  info: {
+    displayName: 'skill';
+  };
+  attributes: {
+    primary: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    technology: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::technology.technology'
+    >;
+  };
+}
+
+export interface PortfolioSkillGroup extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_skill_group';
+  info: {
+    displayName: 'skill-group';
+  };
+  attributes: {
+    category: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    items: Schema.Attribute.Component<'portfolio.skill', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+  };
+}
+
+export interface PortfolioSocialLink extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_social_link';
+  info: {
+    displayName: 'social-link';
+  };
+  attributes: {
+    displayOrder: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    enabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    key: Schema.Attribute.Enumeration<['linkedin', 'github', 'other']> &
+      Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+    url: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 500;
+      }>;
+  };
+}
+
+export interface PortfolioText extends Struct.ComponentSchema {
+  collectionName: 'components_portfolio_text';
+  info: {
+    displayName: 'text';
+  };
+  attributes: {
+    value: Schema.Attribute.Text & Schema.Attribute.Required;
+  };
+}
+
 export interface ProjectFeature extends Struct.ComponentSchema {
   collectionName: 'components_project_features';
   info: {
@@ -100,6 +375,17 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'portfolio.actions': PortfolioActions;
+      'portfolio.architecture': PortfolioArchitecture;
+      'portfolio.contact': PortfolioContact;
+      'portfolio.detail': PortfolioDetail;
+      'portfolio.hero': PortfolioHero;
+      'portfolio.layer': PortfolioLayer;
+      'portfolio.metrics': PortfolioMetrics;
+      'portfolio.skill': PortfolioSkill;
+      'portfolio.skill-group': PortfolioSkillGroup;
+      'portfolio.social-link': PortfolioSocialLink;
+      'portfolio.text': PortfolioText;
       'project.feature': ProjectFeature;
       'project.responsibility': ProjectResponsibility;
       'project.seo': ProjectSeo;

@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_portfolio_social_link",
+  "info": {
+    "displayName": "social-link"
+  },
+  "attributes": {
+    "key": {
+      "type": "enumeration",
+      "enum": [
+        "linkedin",
+        "github",
+        "other"
+      ],
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "url": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "regex": "^https?://[^\\s]+$"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "displayOrder": {
+      "type": "integer",
+      "min": 0,
+      "default": 0
+    }
+  }
+}

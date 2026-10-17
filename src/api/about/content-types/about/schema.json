@@ -8,16 +8,124 @@
     "description": "Write about yourself and the content you create"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "title": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "blocks": {
       "type": "dynamiczone",
-      "components": ["shared.media", "shared.quote", "shared.rich-text", "shared.slider"]
+      "components": [
+        "shared.media",
+        "shared.quote",
+        "shared.rich-text",
+        "shared.slider"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seedKey": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "paragraphs": {
+      "type": "component",
+      "component": "portfolio.text",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "details": {
+      "type": "component",
+      "component": "portfolio.detail",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "stackHeading": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "primaryLabel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "supportingLabel": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "stack": {
+      "type": "component",
+      "component": "portfolio.skill-group",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

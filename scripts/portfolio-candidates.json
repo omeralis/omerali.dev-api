@@ -1,0 +1,627 @@
+{
+  "sourceCommit": "dbed3a070edf9a3645819e9fb66d8d4b4ba7200f",
+  "locales": {
+    "en": {
+      "home": {
+        "hero": {
+          "identity": "Omer Ali / Software Engineer / Full Stack Developer",
+          "headline": [
+            "Engineering software that",
+            "moves business forward."
+          ],
+          "introduction": "Software Engineer specializing in scalable web applications, enterprise platforms and business systems, with professional development experience since 2018.",
+          "actions": {
+            "projects": "View My Projects",
+            "contact": "Contact Me",
+            "resume": "Download CV",
+            "unavailable": "Available when published"
+          },
+          "links": {
+            "linkedin": "https://www.linkedin.com/in/omeraliabdallh"
+          },
+          "metrics": {
+            "since": "Professional Since",
+            "start": "November 2018",
+            "based": "Based In",
+            "location": "Saudi Arabia",
+            "experience": "Professional Experience"
+          },
+          "architecture": {
+            "label": "System / 01",
+            "heading": "A complete system. Every layer considered.",
+            "caption": "From interface to infrastructure",
+            "layers": [
+              {
+                "name": "Frontend",
+                "detail": "Interfaces & interactions"
+              },
+              {
+                "name": "API",
+                "detail": "Connections & contracts"
+              },
+              {
+                "name": "Backend",
+                "detail": "Business logic & workflows"
+              },
+              {
+                "name": "Database",
+                "detail": "Structured application data"
+              },
+              {
+                "name": "Deployment",
+                "detail": "Delivering the application"
+              }
+            ]
+          }
+        },
+        "about": {
+          "identifier": "01 / About",
+          "heading": "About",
+          "paragraphs": [
+            "I’m Omer Ali, a Software Engineer and Full Stack Developer. Since November 2018, my work has spanned frontend engineering, full-stack development, enterprise applications, government systems and business platforms.",
+            "I translate complex business requirements into practical, maintainable software. My experience includes frontend architecture, API integrations, authentication, authorization and role-based access control — the foundations that help complete systems work together.",
+            "That work extends to dashboards, reporting, workflows, interactive maps and document management. Localization and Arabic / English applications are part of how I approach software that serves its users."
+          ],
+          "details": [
+            {
+              "label": "Role",
+              "value": "Software Engineer / Full Stack Developer"
+            },
+            {
+              "label": "Focus",
+              "value": "Enterprise & Business Applications"
+            },
+            {
+              "label": "Application Languages",
+              "value": "Arabic / English"
+            }
+          ],
+          "stackHeading": "The stack behind the systems",
+          "primaryLabel": "Core development stack",
+          "supportingLabel": "Supporting technologies",
+          "stack": [
+            {
+              "category": "Frontend",
+              "primary": [
+                "Angular",
+                "React",
+                "Next.js",
+                "TypeScript",
+                "JavaScript"
+              ],
+              "supporting": [
+                "HTML5",
+                "CSS3",
+                "SCSS",
+                "Bootstrap"
+              ]
+            },
+            {
+              "category": "Backend",
+              "primary": [
+                "Laravel"
+              ],
+              "supporting": [
+                "REST APIs"
+              ]
+            },
+            {
+              "category": "Database",
+              "primary": [],
+              "supporting": [
+                "SQL Server",
+                "MySQL"
+              ]
+            },
+            {
+              "category": "Tools",
+              "primary": [],
+              "supporting": [
+                "Git"
+              ]
+            }
+          ]
+        }
+      },
+      "services": {
+        "identifier": "02 / Services",
+        "heading": "Services",
+        "introduction": "Engineering capabilities for building applications, connecting systems and turning business requirements into practical software.",
+        "services": [
+          {
+            "id": "full-stack",
+            "number": 1,
+            "slug": "full-stack-development",
+            "displayOrder": 1,
+            "title": "Full Stack Development",
+            "titleArabic": "تطوير Full Stack",
+            "description": "Build complete web applications covering frontend interfaces, backend services, APIs, authentication, databases and integrations.",
+            "descriptionArabic": "تطوير تطبيقات ويب متكاملة تشمل واجهات المستخدم وخدمات Backend وواجهات API والمصادقة وقواعد البيانات والتكامل بين الأنظمة."
+          },
+          {
+            "id": "frontend",
+            "number": 2,
+            "slug": "frontend-engineering",
+            "displayOrder": 2,
+            "title": "Frontend Engineering",
+            "titleArabic": "هندسة الواجهات الأمامية",
+            "description": "Build scalable, maintainable frontend applications with Angular, React, Next.js and TypeScript, focusing on architecture, reusable components and application performance.",
+            "descriptionArabic": "بناء تطبيقات Frontend قابلة للتوسع وسهلة الصيانة باستخدام Angular وReact وNext.js وTypeScript، مع التركيز على البنية والمكونات القابلة لإعادة الاستخدام وأداء التطبيق."
+          },
+          {
+            "id": "backend",
+            "number": 3,
+            "slug": "backend-api-development",
+            "displayOrder": 3,
+            "title": "Backend & API Development",
+            "titleArabic": "تطوير Backend وواجهات API",
+            "description": "Develop backend services and REST APIs with Laravel, including authentication, authorization, business logic and database integrations.",
+            "descriptionArabic": "تطوير خدمات Backend وواجهات REST API باستخدام Laravel، بما يشمل المصادقة والتفويض ومنطق الأعمال والتكامل مع قواعد البيانات."
+          },
+          {
+            "id": "enterprise",
+            "number": 4,
+            "slug": "enterprise-business-systems",
+            "displayOrder": 4,
+            "title": "Enterprise & Business Systems",
+            "titleArabic": "أنظمة المؤسسات والأعمال",
+            "description": "Build internal platforms, government systems, management applications, portals and workflow-based business solutions.",
+            "descriptionArabic": "بناء المنصات الداخلية والأنظمة الحكومية وتطبيقات الإدارة والبوابات وحلول الأعمال القائمة على سير العمل."
+          },
+          {
+            "id": "reporting",
+            "number": 5,
+            "slug": "dashboards-reporting",
+            "displayOrder": 5,
+            "title": "Dashboards & Reporting",
+            "titleArabic": "لوحات المعلومات والتقارير",
+            "description": "Develop dashboards, analytics interfaces, charts, business reports and data-driven monitoring experiences.",
+            "descriptionArabic": "تطوير لوحات المعلومات وواجهات التحليل والرسوم البيانية وتقارير الأعمال وأدوات المتابعة المبنية على البيانات."
+          },
+          {
+            "id": "modernization",
+            "number": 6,
+            "slug": "system-development-modernization",
+            "displayOrder": 6,
+            "title": "System Development & Modernization",
+            "titleArabic": "تطوير وتحديث الأنظمة",
+            "description": "Extend and improve existing applications through new features, refactoring, integrations, architecture improvements and performance optimization.",
+            "descriptionArabic": "تطوير التطبيقات القائمة بإضافة مزايا جديدة وإعادة تنظيم الكود والتكامل مع الأنظمة الأخرى وتحسين البنية والأداء."
+          }
+        ]
+      },
+      "experience": {
+        "identifier": "03 / Experience",
+        "heading": "Experience",
+        "introduction": "Professional journey since 2018.",
+        "fullTime": "Full-time",
+        "partTime": "Part-time",
+        "current": "Current",
+        "present": "Present",
+        "onSite": "On-site",
+        "remote": "Remote",
+        "hybrid": "Hybrid",
+        "associated": "Associated with",
+        "mainCareer": "Full-time career",
+        "parallelCareer": "Parallel part-time experience",
+        "overlapNote": "A part-time leadership role alongside the full-time career.",
+        "entries": [
+          {
+            "id": "riyadh",
+            "company": "Riyadh Municipality",
+            "companyArabic": "أمانة منطقة الرياض",
+            "role": "Frontend Developer",
+            "roleArabic": "مطور Frontend",
+            "employmentType": "full-time",
+            "startDate": "2025-09",
+            "isCurrent": true,
+            "location": "Riyadh, Saudi Arabia",
+            "locationArabic": "الرياض، المملكة العربية السعودية",
+            "workMode": "on-site",
+            "displayOrder": 1
+          },
+          {
+            "id": "jeddah",
+            "company": "Jeddah Municipality",
+            "companyArabic": "أمانة محافظة جدة",
+            "role": "Front End Developer",
+            "roleArabic": "مطور الواجهات الأمامية",
+            "employmentType": "full-time",
+            "startDate": "2024-08",
+            "endDate": "2025-09",
+            "isCurrent": false,
+            "location": "Jeddah, Saudi Arabia",
+            "locationArabic": "جدة، المملكة العربية السعودية",
+            "workMode": "on-site",
+            "associatedOrganization": "Modon Engineering Consulting Office",
+            "displayOrder": 2
+          },
+          {
+            "id": "haktrak",
+            "company": "HakTrak",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2023-09",
+            "endDate": "2024-10",
+            "isCurrent": false,
+            "workMode": "on-site",
+            "displayOrder": 3
+          },
+          {
+            "id": "manasaty",
+            "company": "Manasaty / منصتي",
+            "companyArabic": "منصتي / Manasaty",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2022-04",
+            "endDate": "2023-12",
+            "isCurrent": false,
+            "location": "Abu Dhabi, United Arab Emirates",
+            "locationArabic": "أبوظبي، الإمارات العربية المتحدة",
+            "workMode": "on-site",
+            "displayOrder": 4
+          },
+          {
+            "id": "oasis",
+            "company": "Oasis Computer Systems Co. Ltd.",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2020-08",
+            "endDate": "2022-01",
+            "isCurrent": false,
+            "displayOrder": 5
+          },
+          {
+            "id": "afromoney",
+            "company": "Afromoney",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2018-11",
+            "endDate": "2020-07",
+            "isCurrent": false,
+            "displayOrder": 6
+          },
+          {
+            "id": "clean-basket",
+            "company": "Clean Basket",
+            "role": "Team Leader",
+            "roleArabic": "قائد فريق",
+            "employmentType": "part-time",
+            "startDate": "2025-01",
+            "endDate": "2026-11",
+            "isCurrent": false,
+            "displayOrder": 1
+          }
+        ]
+      },
+      "identity": {
+        "name": "Omer Ali",
+        "title": "Software Engineer | Full Stack Developer",
+        "description": "Building scalable web applications, enterprise systems and business solutions. Professionally developing software since November 2018.",
+        "careerStart": "2018-11"
+      },
+      "contact": {
+        "identifier": "05 / Contact",
+        "heading": "Let’s build what’s next.",
+        "introduction": "Have a web application, enterprise platform or business system in mind? Connect with me on LinkedIn.",
+        "action": "Connect on LinkedIn",
+        "caption": "From idea to implementation"
+      }
+    },
+    "ar": {
+      "home": {
+        "hero": {
+          "identity": "عمر علي / مهندس برمجيات / مطور Full Stack",
+          "headline": [
+            "أطوّر برمجيات",
+            "تدفع الأعمال إلى الأمام."
+          ],
+          "introduction": "مهندس برمجيات متخصص في تطبيقات الويب القابلة للتوسع والمنصات المؤسسية وأنظمة الأعمال، بخبرة مهنية في تطوير البرمجيات بدأت عام ٢٠١٨.",
+          "actions": {
+            "projects": "استعرض مشاريعي",
+            "contact": "تواصل معي",
+            "resume": "تحميل السيرة الذاتية",
+            "unavailable": "متاح عند النشر"
+          },
+          "links": {
+            "linkedin": "https://www.linkedin.com/in/omeraliabdallh"
+          },
+          "metrics": {
+            "since": "بداية المسيرة المهنية",
+            "start": "نوفمبر ٢٠١٨",
+            "based": "الموقع",
+            "location": "المملكة العربية السعودية",
+            "experience": "الخبرة المهنية"
+          },
+          "architecture": {
+            "label": "النظام / ٠١",
+            "heading": "نظام متكامل. عناية بكل طبقة.",
+            "caption": "من واجهة المستخدم إلى البنية التحتية",
+            "layers": [
+              {
+                "name": "الواجهة",
+                "detail": "واجهات المستخدم والتفاعل"
+              },
+              {
+                "name": "واجهة برمجة التطبيقات",
+                "detail": "الربط وعقود الاتصال"
+              },
+              {
+                "name": "الخلفية",
+                "detail": "منطق الأعمال وسير العمل"
+              },
+              {
+                "name": "قاعدة البيانات",
+                "detail": "تنظيم بيانات التطبيق"
+              },
+              {
+                "name": "النشر",
+                "detail": "إتاحة التطبيق للاستخدام"
+              }
+            ]
+          }
+        },
+        "about": {
+          "identifier": "٠١ / نبذة",
+          "heading": "نبذة",
+          "paragraphs": [
+            "أنا عمر علي، مهندس برمجيات ومطور Full Stack. بدأت مسيرتي المهنية في نوفمبر ٢٠١٨، وعملت في تطوير الواجهات والتطبيقات المتكاملة، بما يشمل التطبيقات المؤسسية والأنظمة الحكومية ومنصات الأعمال.",
+            "أركز على تحويل متطلبات الأعمال المعقدة إلى حلول عملية يسهل صيانتها وتطويرها. وتشمل خبرتي تصميم بنية الواجهات، وتكامل واجهات برمجة التطبيقات، والمصادقة والتفويض، وإدارة صلاحيات الوصول وفق الأدوار، لربط أجزاء النظام بصورة متكاملة.",
+            "يمتد عملي إلى لوحات المعلومات والتقارير وسير العمل والخرائط التفاعلية وإدارة المستندات. وأولي اهتمامًا للتوطين وبناء التطبيقات باللغتين العربية والإنجليزية، بما يلائم احتياجات مستخدميها."
+          ],
+          "details": [
+            {
+              "label": "التخصص",
+              "value": "مهندس برمجيات / مطور Full Stack"
+            },
+            {
+              "label": "مجال التركيز",
+              "value": "التطبيقات المؤسسية وأنظمة الأعمال"
+            },
+            {
+              "label": "لغات التطبيقات",
+              "value": "العربية / الإنجليزية"
+            }
+          ],
+          "stackHeading": "التقنيات التي أبني بها الأنظمة",
+          "primaryLabel": "تقنيات التطوير الأساسية",
+          "supportingLabel": "التقنيات المساندة",
+          "stack": [
+            {
+              "category": "الواجهات",
+              "primary": [
+                "Angular",
+                "React",
+                "Next.js",
+                "TypeScript",
+                "JavaScript"
+              ],
+              "supporting": [
+                "HTML5",
+                "CSS3",
+                "SCSS",
+                "Bootstrap"
+              ]
+            },
+            {
+              "category": "الخلفية",
+              "primary": [
+                "Laravel"
+              ],
+              "supporting": [
+                "REST APIs"
+              ]
+            },
+            {
+              "category": "قواعد البيانات",
+              "primary": [],
+              "supporting": [
+                "SQL Server",
+                "MySQL"
+              ]
+            },
+            {
+              "category": "الأدوات",
+              "primary": [],
+              "supporting": [
+                "Git"
+              ]
+            }
+          ]
+        }
+      },
+      "services": {
+        "identifier": "٠٢ / الخدمات",
+        "heading": "الخدمات",
+        "introduction": "قدرات هندسية لبناء التطبيقات وربط الأنظمة وتحويل احتياجات الأعمال إلى حلول عملية.",
+        "services": [
+          {
+            "id": "full-stack",
+            "number": 1,
+            "slug": "full-stack-development",
+            "displayOrder": 1,
+            "title": "Full Stack Development",
+            "titleArabic": "تطوير Full Stack",
+            "description": "Build complete web applications covering frontend interfaces, backend services, APIs, authentication, databases and integrations.",
+            "descriptionArabic": "تطوير تطبيقات ويب متكاملة تشمل واجهات المستخدم وخدمات Backend وواجهات API والمصادقة وقواعد البيانات والتكامل بين الأنظمة."
+          },
+          {
+            "id": "frontend",
+            "number": 2,
+            "slug": "frontend-engineering",
+            "displayOrder": 2,
+            "title": "Frontend Engineering",
+            "titleArabic": "هندسة الواجهات الأمامية",
+            "description": "Build scalable, maintainable frontend applications with Angular, React, Next.js and TypeScript, focusing on architecture, reusable components and application performance.",
+            "descriptionArabic": "بناء تطبيقات Frontend قابلة للتوسع وسهلة الصيانة باستخدام Angular وReact وNext.js وTypeScript، مع التركيز على البنية والمكونات القابلة لإعادة الاستخدام وأداء التطبيق."
+          },
+          {
+            "id": "backend",
+            "number": 3,
+            "slug": "backend-api-development",
+            "displayOrder": 3,
+            "title": "Backend & API Development",
+            "titleArabic": "تطوير Backend وواجهات API",
+            "description": "Develop backend services and REST APIs with Laravel, including authentication, authorization, business logic and database integrations.",
+            "descriptionArabic": "تطوير خدمات Backend وواجهات REST API باستخدام Laravel، بما يشمل المصادقة والتفويض ومنطق الأعمال والتكامل مع قواعد البيانات."
+          },
+          {
+            "id": "enterprise",
+            "number": 4,
+            "slug": "enterprise-business-systems",
+            "displayOrder": 4,
+            "title": "Enterprise & Business Systems",
+            "titleArabic": "أنظمة المؤسسات والأعمال",
+            "description": "Build internal platforms, government systems, management applications, portals and workflow-based business solutions.",
+            "descriptionArabic": "بناء المنصات الداخلية والأنظمة الحكومية وتطبيقات الإدارة والبوابات وحلول الأعمال القائمة على سير العمل."
+          },
+          {
+            "id": "reporting",
+            "number": 5,
+            "slug": "dashboards-reporting",
+            "displayOrder": 5,
+            "title": "Dashboards & Reporting",
+            "titleArabic": "لوحات المعلومات والتقارير",
+            "description": "Develop dashboards, analytics interfaces, charts, business reports and data-driven monitoring experiences.",
+            "descriptionArabic": "تطوير لوحات المعلومات وواجهات التحليل والرسوم البيانية وتقارير الأعمال وأدوات المتابعة المبنية على البيانات."
+          },
+          {
+            "id": "modernization",
+            "number": 6,
+            "slug": "system-development-modernization",
+            "displayOrder": 6,
+            "title": "System Development & Modernization",
+            "titleArabic": "تطوير وتحديث الأنظمة",
+            "description": "Extend and improve existing applications through new features, refactoring, integrations, architecture improvements and performance optimization.",
+            "descriptionArabic": "تطوير التطبيقات القائمة بإضافة مزايا جديدة وإعادة تنظيم الكود والتكامل مع الأنظمة الأخرى وتحسين البنية والأداء."
+          }
+        ]
+      },
+      "experience": {
+        "identifier": "٠٣ / الخبرات",
+        "heading": "الخبرات",
+        "introduction": "مسيرة مهنية في تطوير البرمجيات منذ ٢٠١٨.",
+        "fullTime": "دوام كامل",
+        "partTime": "دوام جزئي",
+        "current": "المنصب الحالي",
+        "present": "حتى الآن",
+        "onSite": "حضوري",
+        "remote": "عن بُعد",
+        "hybrid": "هجين",
+        "associated": "بالارتباط مع",
+        "mainCareer": "المسيرة بدوام كامل",
+        "parallelCareer": "خبرة موازية بدوام جزئي",
+        "overlapNote": "دور قيادي بدوام جزئي يتزامن مع المسيرة المهنية بدوام كامل.",
+        "entries": [
+          {
+            "id": "riyadh",
+            "company": "Riyadh Municipality",
+            "companyArabic": "أمانة منطقة الرياض",
+            "role": "Frontend Developer",
+            "roleArabic": "مطور Frontend",
+            "employmentType": "full-time",
+            "startDate": "2025-09",
+            "isCurrent": true,
+            "location": "Riyadh, Saudi Arabia",
+            "locationArabic": "الرياض، المملكة العربية السعودية",
+            "workMode": "on-site",
+            "displayOrder": 1
+          },
+          {
+            "id": "jeddah",
+            "company": "Jeddah Municipality",
+            "companyArabic": "أمانة محافظة جدة",
+            "role": "Front End Developer",
+            "roleArabic": "مطور الواجهات الأمامية",
+            "employmentType": "full-time",
+            "startDate": "2024-08",
+            "endDate": "2025-09",
+            "isCurrent": false,
+            "location": "Jeddah, Saudi Arabia",
+            "locationArabic": "جدة، المملكة العربية السعودية",
+            "workMode": "on-site",
+            "associatedOrganization": "Modon Engineering Consulting Office",
+            "displayOrder": 2
+          },
+          {
+            "id": "haktrak",
+            "company": "HakTrak",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2023-09",
+            "endDate": "2024-10",
+            "isCurrent": false,
+            "workMode": "on-site",
+            "displayOrder": 3
+          },
+          {
+            "id": "manasaty",
+            "company": "Manasaty / منصتي",
+            "companyArabic": "منصتي / Manasaty",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2022-04",
+            "endDate": "2023-12",
+            "isCurrent": false,
+            "location": "Abu Dhabi, United Arab Emirates",
+            "locationArabic": "أبوظبي، الإمارات العربية المتحدة",
+            "workMode": "on-site",
+            "displayOrder": 4
+          },
+          {
+            "id": "oasis",
+            "company": "Oasis Computer Systems Co. Ltd.",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2020-08",
+            "endDate": "2022-01",
+            "isCurrent": false,
+            "displayOrder": 5
+          },
+          {
+            "id": "afromoney",
+            "company": "Afromoney",
+            "role": "Full Stack Developer",
+            "roleArabic": "مطور Full Stack",
+            "employmentType": "full-time",
+            "startDate": "2018-11",
+            "endDate": "2020-07",
+            "isCurrent": false,
+            "displayOrder": 6
+          },
+          {
+            "id": "clean-basket",
+            "company": "Clean Basket",
+            "role": "Team Leader",
+            "roleArabic": "قائد فريق",
+            "employmentType": "part-time",
+            "startDate": "2025-01",
+            "endDate": "2026-11",
+            "isCurrent": false,
+            "displayOrder": 1
+          }
+        ]
+      },
+      "identity": {
+        "name": "عمر علي",
+        "title": "مهندس برمجيات | مطور متكامل",
+        "description": "أبني تطبيقات ويب قابلة للتوسع وأنظمة مؤسسية وحلول أعمال. بدأت مسيرتي المهنية في تطوير البرمجيات في نوفمبر ٢٠١٨.",
+        "careerStart": "2018-11"
+      },
+      "contact": {
+        "identifier": "٠٥ / تواصل",
+        "heading": "لنتحدث عن مشروعك القادم.",
+        "introduction": "للتواصل حول تطوير تطبيقات الويب والمنصات المؤسسية وأنظمة الأعمال، تواصل معي عبر LinkedIn.",
+        "action": "تواصل عبر LinkedIn",
+        "caption": "من الفكرة إلى التطبيق"
+      }
+    }
+  }
+}

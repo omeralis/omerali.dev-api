@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_portfolio_layer",
+  "info": {
+    "displayName": "layer"
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "detail": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    }
+  }
+}

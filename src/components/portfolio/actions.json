@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_portfolio_actions",
+  "info": {
+    "displayName": "actions"
+  },
+  "attributes": {
+    "projects": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "contact": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "resume": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "unavailable": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    }
+  }
+}

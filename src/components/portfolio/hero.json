@@ -1,0 +1,57 @@
+{
+  "collectionName": "components_portfolio_hero",
+  "info": {
+    "displayName": "hero"
+  },
+  "attributes": {
+    "identity": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "headline": {
+      "type": "component",
+      "component": "portfolio.text",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "introduction": {
+      "type": "text",
+      "required": true
+    },
+    "actions": {
+      "type": "component",
+      "component": "portfolio.actions",
+      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "metrics": {
+      "type": "component",
+      "component": "portfolio.metrics",
+      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "architecture": {
+      "type": "component",
+      "component": "portfolio.architecture",
+      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_portfolio_skill_group",
+  "info": {
+    "displayName": "skill-group"
+  },
+  "attributes": {
+    "category": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "items": {
+      "type": "component",
+      "component": "portfolio.skill",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
