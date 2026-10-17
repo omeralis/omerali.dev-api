@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_portfolio_architecture",
+  "info": {
+    "displayName": "architecture"
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "heading": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "caption": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "layers": {
+      "type": "component",
+      "component": "portfolio.layer",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

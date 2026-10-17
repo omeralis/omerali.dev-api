@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_portfolio_detail",
+  "info": {
+    "displayName": "detail"
+  },
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "value": {
+      "type": "text",
+      "required": true
+    }
+  }
+}

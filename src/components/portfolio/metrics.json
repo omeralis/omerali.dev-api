@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_portfolio_metrics",
+  "info": {
+    "displayName": "metrics"
+  },
+  "attributes": {
+    "since": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "start": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "based": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "location": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "experience": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    }
+  }
+}

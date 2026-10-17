@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_portfolio_contact",
+  "info": {
+    "displayName": "contact"
+  },
+  "attributes": {
+    "identifier": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "heading": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "introduction": {
+      "type": "text",
+      "required": true
+    },
+    "action": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "caption": {
+      "type": "string",
+      "required": true,
+      "maxLength": 500
+    },
+    "email": {
+      "type": "email"
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 500
+    }
+  }
+}

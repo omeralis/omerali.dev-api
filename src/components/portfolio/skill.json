@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_portfolio_skill",
+  "info": {
+    "displayName": "skill"
+  },
+  "attributes": {
+    "technology": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::technology.technology"
+    },
+    "primary": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
