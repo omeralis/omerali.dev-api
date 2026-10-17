@@ -10,9 +10,14 @@ project technology relation is added. Career month precision and overlapping
 employment dates are preserved. No unknown resume file, GitHub URL, email, logo
 or company URL is invented.
 
-Content API routes expose only find/findOne without authentication, always force
-published status and enabled records, and expose no mutation routes. Admin
-editing remains subject to the existing Strapi admin authorization.
+Content API routes expose only find/findOne through standard Users & Permissions
+authorization, always force published status and enabled records, and expose no
+mutation routes. Configure only the six new public read scopes with the reviewed
+`scripts/portfolio-permissions.cjs` operator (dry-run plan, exact digest and the
+existing verified-backup gates). Existing permissions are preserved. Do not use
+`auth:false`: it omits the Content API ability and causes Strapi's relation
+sanitizer to strip skill Technology relations. Admin editing remains subject to
+the existing Strapi admin authorization.
 
 ## Migration gates
 

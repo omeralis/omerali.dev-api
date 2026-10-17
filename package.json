@@ -17,7 +17,7 @@
     "test:projects": "node --test tests/projects.test.cjs tests/postgres-inventory.test.cjs",
     "seed:projects": "node scripts/seed-projects.cjs",
     "seed:portfolio": "node scripts/seed-portfolio.cjs",
-    "test:portfolio": "node --test tests/portfolio.test.cjs"
+    "test:portfolio": "node --test tests/portfolio.test.cjs tests/portfolio-permissions.test.cjs"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.35.0",
