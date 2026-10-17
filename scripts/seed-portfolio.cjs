@@ -23,7 +23,10 @@ async function inventory(query, config) {
   const found = await query("select table_name from information_schema.tables where table_schema=$1 and table_type='BASE TABLE' order by table_name", [schema]);
   const relevant = found.rows.map(r => r.table_name).filter(n => /^(globals|abouts|services|experiences|projects|technologies)(_|$)|^components_(portfolio|project)_/.test(n));
   const snapshots = {};
-  for (const name of relevant) snapshots[name] = (await query(`select * from ${identifier(schema)}.${identifier(name)} order by id`)).rows;
+  // Strapi changes pg's JSONB/DATE/NUMERIC parsers during initialization. Build
+  // row JSON in PostgreSQL and normalize it explicitly so read-only capture and
+  // the Knex transaction compare identical types without weakening the digest.
+  for (const name of relevant) snapshots[name] = (await query(`select row_to_json(t) as row from ${identifier(schema)}.${identifier(name)} t order by id`)).rows.map(r => typeof r.row === 'string' ? JSON.parse(r.row) : r.row);
   const columns = (await query('select table_name,column_name,data_type,is_nullable from information_schema.columns where table_schema=$1 order by table_name,ordinal_position', [schema])).rows.filter(c => relevant.includes(c.table_name));
   const constraints = (await query('select t.relname as table_name,c.conname,pg_get_constraintdef(c.oid) as definition from pg_constraint c join pg_class t on t.oid=c.conrelid join pg_namespace n on n.oid=t.relnamespace where n.nspname=$1 order by t.relname,c.conname', [schema])).rows.filter(c => relevant.includes(c.table_name));
   const locales = (await query(`select code from ${identifier(schema)}.i18n_locale order by code`)).rows.map(r => r.code);

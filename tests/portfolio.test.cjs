@@ -13,7 +13,7 @@ function fixture() {
     if (sql.includes('information_schema.tables')) return {rows:Object.keys(state).sort().map(table_name=>({table_name}))};
     if (sql.includes('information_schema.columns') || sql.includes('pg_constraint')) return {rows:[]};
     if (sql.includes('i18n_locale')) return {rows:[{code:'ar'},{code:'en'}]};
-    if (sql.startsWith('select *')) return {rows:structuredClone(state[sql.match(/\."([^"]+)"/)[1]])};
+    if (sql.startsWith('select row_to_json')) return {rows:structuredClone(state[sql.match(/\."([^"]+)"/)[1]]).map(row=>({row}))};
     if (/^SET|^LOCK/.test(sql)) return {};
     throw Error('Unexpected SQL');
   };
@@ -52,4 +52,9 @@ test('post-commit public API verification checks all eight locale/model endpoint
   const fetcher=async url=>{const locale=url.searchParams.get('locale'),model=url.pathname.split('/').pop(),count=model==='services'?6:model==='experiences'?7:1;const rows=Array.from({length:count},(_,i)=>({documentId:`fixture-${i}`,locale,publishedAt:'2026-01-01',enabled:true}));return{ok:true,json:async()=>({data:count===1?rows[0]:rows})};};
   assert.equal((await seeder.verifyApi('https://api.example.com',fetcher)).length,8);
   await assert.rejects(seeder.verifyApi('https://api.example.com',async()=>({ok:true,json:async()=>({data:{documentId:'fixture',locale:'en',publishedAt:null,enabled:true}})})));
+});
+test('SQL inventory normalizes JSON text/object driver differences without losing nested values',async()=>{
+  const f=fixture(),before=await f.inventory();
+  const textual=await seeder.inventory(async(sql,params)=>{const result=await f.query(sql,params);return sql.startsWith('select row_to_json')?{rows:result.rows.map(r=>({row:JSON.stringify(r.row)}))}:result;},config);
+  assert.equal(legacy.digest(before),legacy.digest(textual));
 });
