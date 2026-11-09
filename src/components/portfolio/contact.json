@@ -34,6 +34,16 @@
     "location": {
       "type": "string",
       "maxLength": 500
+    },
+    "phone": {
+      "type": "string",
+      "maxLength": 32,
+      "regex": "^\\+[1-9][\\d ()-]{6,20}$"
+    },
+    "whatsapp": {
+      "type": "string",
+      "maxLength": 32,
+      "regex": "^\\+[1-9][\\d ()-]{6,20}$"
     }
   }
 }
